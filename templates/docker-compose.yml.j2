@@ -77,7 +77,7 @@ services:
 {% endfor %}
 {% endif %}
 {% endif %}
-{% if container.links is define d%}
+{% if container.links is defined %}
 	links:
 {% for link in container.links %}
 	  - {{ link }}
