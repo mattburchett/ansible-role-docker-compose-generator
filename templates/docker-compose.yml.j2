@@ -161,3 +161,10 @@ services:
 {% endif %}
 {% endif %}
 {% endfor %}
+
+{% if volumes %}
+volumes:
+{% for volume in volumes %}
+  - {{ volume }}
+{% endfor %}
+{% endif %}
