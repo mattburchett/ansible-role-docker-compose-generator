@@ -22,6 +22,12 @@ services:
 {% if container.privileged is defined %}
     privileged: {{ container.privileged }}
 {% endif %}
+{% if container.tty is defined %}
+    tty: {{ container.tty }}
+{% endif %}
+{% if container.stdin_open is defined %}
+    stdin_open: {{ container.stdin_open }}
+{% endif %}
 {% if container.cap_add is defined %}
     cap_add: 
 {% for cap in container.cap_add %}
