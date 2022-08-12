@@ -171,6 +171,6 @@ services:
 {% if volumes is defined %}
 volumes:
 {% for volume in volumes %}
-  - {{ volume }}
+  {{ volume }}:
 {% endfor %}
 {% endif %}
