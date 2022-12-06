@@ -95,6 +95,9 @@ services:
 {% if container.mem_limit is defined %}
     mem_limit: {{ container.mem_limit }}
 {% endif %}
+{% if container.single_command is defined %}
+    command: {{ container.single_command }}
+{% endif %}
 {% if container.command is defined %}
     command:
 {% for command in container.command %}
