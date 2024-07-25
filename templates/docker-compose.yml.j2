@@ -210,6 +210,21 @@ services:
 {% if container.stop_grace_period is defined %}
     stop_grace_period: {{ container.stop_grace_period }}
 {% endif %}
+{% if container.networks is defined %}
+    networks:
+{% for network in container.networks %}
+      - {{ network }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% if compose_networks is defined %}
+networks:
+{% for network in compose_networks %}
+  {{ network.name }}:
+{% if network.external is defined %}
+    external: {{ network.external }}
 {% endif %}
 {% endfor %}
 
