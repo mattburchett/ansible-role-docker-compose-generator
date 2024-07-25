@@ -1,6 +1,5 @@
-# {{ ansible_managed }}
+{{ ansible_managed | comment }}
 ---
-version: "{{ compose_schema_version | default('2') }}"
 services:
 {% for container in containers %}
 {% if container.active %}
@@ -29,13 +28,13 @@ services:
     stdin_open: {{ container.stdin_open }}
 {% endif %}
 {% if container.cap_add is defined %}
-    cap_add: 
+    cap_add:
 {% for cap in container.cap_add %}
       - {{ cap }}
 {% endfor %}
 {% endif %}
 {% if container.group_add is defined %}
-    group_add: 
+    group_add:
 {% for group in container.group_add %}
       - {{ group }}
 {% endfor %}
@@ -64,6 +63,12 @@ services:
       - "{{ port }}"
 {% endfor %}
 {% endif %}
+{% if container.expose is defined %}
+    expose:
+{% for expose_port in container.expose %}
+      - {{ expose_port }}
+{% endfor %}
+{% endif %}
 {% if ( container.environment is defined ) or ( container.include_global_env_vars is defined and container.include_global_env_vars) %}
     environment:
 {% if container.include_global_env_vars | default(false) %}
@@ -86,7 +91,12 @@ services:
 {% if container.depends_on is defined %}
     depends_on:
 {% for dependent in container.depends_on %}
+{% if dependent is mapping %}
+      {{ dependent.service}}:
+        condition: {{ dependent.condition }}
+{% else %}
       - {{ dependent }}
+{% endif %}
 {% endfor %}
 {% endif %}
 {% if container.hostname is defined %}
@@ -99,10 +109,14 @@ services:
     command: {{ container.single_command }}
 {% endif %}
 {% if container.command is defined %}
+{% if container.command is string %}
+    command: {{ container.command }}
+{% else %}
     command:
 {% for command in container.command %}
       - {{ command }}
 {% endfor %}
+{% endif %}
 {% endif %}
 {% if container.security_opt is defined %}
     security_opt:
@@ -165,8 +179,36 @@ services:
       - {{ envfile }}
 {% endfor %}
 {% endif %}
+{% if container.healthcheck is defined %}
+    healthcheck:
+      test: {{ container.healthcheck.test }}
+{% if container.healthcheck.interval is defined %}
+      interval: {{ container.healthcheck.interval }}
+{% endif %}
+{% if container.healthcheck.timeout is defined %}
+      timeout: {{ container.healthcheck.timeout }}
+{% endif %}
+{% if container.healthcheck.retries is defined %}
+      retries: {{ container.healthcheck.retries }}
+{% endif %}
+{% if container.healthcheck.start_period is defined %}
+      start_period: {{ container.healthcheck.start_period }}
+{% endif %}
+{% endif %}
+{% if container.deploy.resources.reservations.devices is defined %}
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: {{ container.deploy.resources.reservations.devices.driver.count | default("1") }}
+            capabilities: [gpu]
+{% endif %}
 {% if container.restart is defined %}
     restart: {{ container.restart }}
+{% endif %}
+{% if container.stop_grace_period is defined %}
+    stop_grace_period: {{ container.stop_grace_period }}
 {% endif %}
 {% endif %}
 {% endfor %}
