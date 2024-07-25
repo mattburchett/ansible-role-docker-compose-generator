@@ -84,4 +84,5 @@ containers:
 compose_networks:
   - name: proxy
     external: true
+    network_name: proxy
 ```

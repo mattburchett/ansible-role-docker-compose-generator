@@ -226,6 +226,9 @@ networks:
 {% if network.external is defined %}
     external: {{ network.external }}
 {% endif %}
+{% if network.network_name is defined %}
+    name: {{ network.network_name }}
+{% endif %}
 {% endfor %}
 
 {% if volumes is defined %}
