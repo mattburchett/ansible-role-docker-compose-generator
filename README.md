@@ -26,6 +26,8 @@ containers:
       - 443:443
     volumes:
       - "{{ appdata_path }}/letsencrypt/config:{{ container_config_path }}"
+    networks:
+      - proxy
     restart: always
     depends_on:
       - unifi
@@ -78,4 +80,8 @@ containers:
     mem_limit: 128m
     ports:
       - "4242:4242"
+
+compose_networks:
+  - name: proxy
+    external: true
 ```
