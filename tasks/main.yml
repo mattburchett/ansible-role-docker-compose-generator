@@ -1,12 +1,17 @@
 ---
-- name: ensure destination for compose file exists
+- name: "Ensure destination for Compose file exists - {{ directory }}"
   file:
-    path: "{{ docker_compose_generator_output_path }}"
+    path: "{{ directory }}"
     state: directory
+  vars:
+    directory: "{{ docker_compose_generator_output_path }}"
 
-- name: write docker-compose file
+- name: "Write docker-compose file - {{ full_path }}"
   template:
     src: ../templates/docker-compose.yml.j2
-    dest: "{{ docker_compose_generator_output_path }}/docker-compose.yml"
+    dest: "{{ full_path }}"
     owner: "{{ docker_compose_generator_uid }}"
     group: "{{ docker_compose_generator_gid }}"
+  vars:
+    full_path: "{{ docker_compose_generator_output_path }}/docker-compose.yml"
+
