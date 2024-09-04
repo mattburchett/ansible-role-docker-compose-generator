@@ -234,6 +234,7 @@ networks:
     name: {{ network.network_name }}
 {% endif %}
 {% endfor %}
+{% endif %}
 
 {% if volumes is defined %}
 volumes:
@@ -241,4 +242,4 @@ volumes:
   {{ volume }}:
 {% endfor %}
 {% endif %}
-{% endif %}
+
