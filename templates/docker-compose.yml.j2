@@ -20,6 +20,12 @@ services:
     image: {{ container.image }}
 {% endif %}
     container_name: {{ container.container_name | default(container.service_name) }}
+{% if container.profiles is defined %}
+    profiles:
+{% for profile in container.profiles %}
+      - {{ profile }}
+{% endfor %}
+{% endif %}
 {% if container.extra_hosts is defined %}
     extra_hosts:
 {% for host in container.extra_hosts %}
@@ -31,6 +37,9 @@ services:
 {% endif %}
 {% if container.privileged is defined %}
     privileged: {{ container.privileged }}
+{% endif %}
+{% if container.ipc is defined %}
+    ipc: {{ container.ipc }}
 {% endif %}
 {% if container.tty is defined %}
     tty: {{ container.tty }}
@@ -210,14 +219,31 @@ services:
       start_period: {{ container.healthcheck.start_period }}
 {% endif %}
 {% endif %}
-{% if container.deploy.resources.reservations.devices is defined %}
+{% if container.deploy is defined %}
     deploy:
+{% if container.deploy.resources is defined %}
       resources:
+{% if container.deploy.resources.reservations is defined %}
         reservations:
+{% if container.deploy.resources.reservations.devices is defined %}
           devices:
-          - driver: nvidia
-            count: {{ container.deploy.resources.reservations.devices.driver.count | default("1") }}
-            capabilities: [gpu]
+{% for device in container.deploy.resources.reservations.devices %}
+          - driver: {{ device.driver | default('nvidia') }}
+{% if device.device_ids is defined %}
+            device_ids:
+{% for id in device.device_ids %}
+              - '{{ id }}'
+{% endfor %}
+{% elif device.count is defined %}
+            count: {{ device.count }}
+{% else %}
+            count: all
+{% endif %}
+            capabilities: {{ device.capabilities | default(['gpu']) }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endif %}
 {% endif %}
 {% if container.restart is defined %}
     restart: {{ container.restart }}
