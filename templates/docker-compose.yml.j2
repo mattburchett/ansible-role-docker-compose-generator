@@ -19,7 +19,10 @@ services:
 {% else %}
     image: {{ container.image }}
 {% endif %}
-    container_name: {{ container.container_name | default(container.service_name) }}
+    container_name: {{ container.container_name | default(container.service_name) }}a
+{% if container.user is defined %}
+    user: {{ container.user }}
+{% endif %}
 {% if container.profiles is defined %}
     profiles:
 {% for profile in container.profiles %}
