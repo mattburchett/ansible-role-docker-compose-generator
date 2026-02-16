@@ -1,7 +1,8 @@
 import yaml
+from ansible.parsing.yaml.dumper import AnsibleDumper
 
 
-class IndentedListDumper(yaml.Dumper):
+class IndentedListDumper(AnsibleDumper):
     def increase_indent(self, flow=False, indentless=False):
         return super().increase_indent(flow, False)
 
