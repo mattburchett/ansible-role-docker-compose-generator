@@ -3,269 +3,16 @@
 services:
 {% for container in containers %}
 {% if container.active %}
+{% set _meta = ['active', 'service_name', 'include_global_env_vars'] %}
+{% set ns = namespace(svc={}) %}
+{% for key in container if key not in _meta %}
+{% set ns.svc = ns.svc | combine({key: container[key]}) %}
+{% endfor %}
+{% if container.include_global_env_vars | default(false) and global_env_vars is defined %}
+{% set ns.svc = ns.svc | combine({'environment': global_env_vars + (ns.svc.environment | default([]))}) %}
+{% endif %}
   {{ container.service_name }}:
-{% if container.build is defined %}
-{% if container.build is string %}
-    build: {{ container.build }}
-{% else %}
-    build:
-{% if container.build.context is defined %}
-      context: {{ container.build.context }}
-{% endif %}
-{% if container.build.dockerfile is defined %}
-      dockerfile: {{ container.build.dockerfile }}
-{% endif %}
-{% endif %}
-{% else %}
-    image: {{ container.image }}
-{% endif %}
-    container_name: {{ container.container_name | default(container.service_name) }}
-{% if container.user is defined %}
-    user: {{ container.user }}
-{% endif %}
-{% if container.profiles is defined %}
-    profiles:
-{% for profile in container.profiles %}
-      - {{ profile }}
-{% endfor %}
-{% endif %}
-{% if container.extra_hosts is defined %}
-    extra_hosts:
-{% for host in container.extra_hosts %}
-      - {{ host }}
-{% endfor %}
-{% endif %}
-{% if container.network_mode is defined %}
-    network_mode: {{ container.network_mode }}
-{% endif %}
-{% if container.privileged is defined %}
-    privileged: {{ container.privileged }}
-{% endif %}
-{% if container.cgroup is defined %}
-    cgroup: {{ container.cgroup }}
-{% endif %}
-{% if container.ipc is defined %}
-    ipc: {{ container.ipc }}
-{% endif %}
-{% if container.tty is defined %}
-    tty: {{ container.tty }}
-{% endif %}
-{% if container.stdin_open is defined %}
-    stdin_open: {{ container.stdin_open }}
-{% endif %}
-{% if container.cap_add is defined %}
-    cap_add:
-{% for cap in container.cap_add %}
-      - {{ cap }}
-{% endfor %}
-{% endif %}
-{% if container.group_add is defined %}
-    group_add:
-{% for group in container.group_add %}
-      - {{ group }}
-{% endfor %}
-{% endif %}
-{% if container.devices is defined %}
-    devices:
-{% for device in container.devices %}
-      - {{ device }}
-{% endfor %}
-{% endif %}
-{% if container.volumes is defined %}
-    volumes:
-{% for volume in container.volumes %}
-      - {{ volume }}
-{% endfor %}
-{% endif %}
-{% if container.labels is defined %}
-    labels:
-{% for label in container.labels %}
-      - {{ label }}
-{% endfor %}
-{% endif %}
-{% if container.ports is defined %}
-    ports:
-{% for port in container.ports %}
-      - "{{ port }}"
-{% endfor %}
-{% endif %}
-{% if container.expose is defined %}
-    expose:
-{% for expose_port in container.expose %}
-      - {{ expose_port }}
-{% endfor %}
-{% endif %}
-{% if ( container.environment is defined ) or ( container.include_global_env_vars is defined and container.include_global_env_vars) %}
-    environment:
-{% if container.include_global_env_vars | default(false) %}
-{% for global_var in global_env_vars %}
-      - {{ global_var }}
-{% endfor %}
-{% endif %}
-{% if container.environment is defined %}
-{% for env_var in container.environment %}
-{% if ":" in env_var %}
-      - "{{ env_var }}"
-{% else %}
-      - {{ env_var }}
-{% endif %}
-{% endfor %}
-{% endif %}
-{% endif %}
-{% if container.links is defined %}
-    links:
-{% for link in container.links %}
-      - {{ link }}
-{% endfor %}
-{% endif %}
-{% if container.depends_on is defined %}
-    depends_on:
-{% for dependent in container.depends_on %}
-{% if dependent is mapping %}
-      {{ dependent.service}}:
-        condition: {{ dependent.condition }}
-{% else %}
-      - {{ dependent }}
-{% endif %}
-{% endfor %}
-{% endif %}
-{% if container.hostname is defined %}
-    hostname: {{ container.hostname }}
-{% endif %}
-{% if container.mem_limit is defined %}
-    mem_limit: {{ container.mem_limit }}
-{% endif %}
-{% if container.single_command is defined %}
-    command: {{ container.single_command }}
-{% endif %}
-{% if container.command is defined %}
-{% if container.command is string %}
-    command: {{ container.command }}
-{% else %}
-    command:
-{% for command in container.command %}
-      - {{ command }}
-{% endfor %}
-{% endif %}
-{% endif %}
-{% if container.security_opt is defined %}
-    security_opt:
-{% for sec_opt in container.security_opt %}
-      - {{ sec_opt }}
-{% endfor %}
-{% endif %}
-{% if container.sysctl is defined %}
-    sysctls:
-{% for param in container.sysctl %}
-      - {{ param }}
-{% endfor %}
-{% endif %}
-{% if container.shm_size is defined %}
-    shm_size: {{ container.shm_size }}
-{% endif %}
-{% if container.ulimits is defined %}
-    ulimits:
-{% if container.ulimits.nproc is defined %}
-      nproc: {{ container.ulimits.nproc }}
-{% endif %}
-{% if container.ulimits.nofile is defined %}
-      nofile:
-{% for param, value in container.ulimits.nofile.items() %}
-        {{ param }}: {{ value }}
-{% endfor %}
-{% endif %}
-{% if container.ulimits.memlock is defined %}
-      memlock:
-{% for param, value in container.ulimits.memlock.items() %}
-        {{ param }}: {{ value }}
-{% endfor %}
-{% endif %}
-{% endif %}
-{% if container.tmpfs is defined %}
-    tmpfs:
-{% for item in container.tmpfs %}
-      - {{ item }}
-{% endfor %}
-{% endif %}
-{% if container.dns is defined %}
-    dns:
-{% for dns_entry in container.dns %}
-      - {{ dns_entry }}
-{% endfor %}
-{% endif %}
-{% if container.logging.driver is defined %}
-    logging:
-      driver: {{ container.logging.driver }}
-{% if container.logging.options is defined %}
-      options:
-{% for option in container.logging.options %}
-        {{ option }}: {{ container.logging.options[option] }}
-{% endfor %}
-{% endif %}
-{% endif %}
-{% if container.env_file is defined %}
-    env_file:
-{% for envfile in container.env_file %}
-      - {{ envfile }}
-{% endfor %}
-{% endif %}
-{% if container.healthcheck is defined %}
-    healthcheck:
-      test: {{ container.healthcheck.test }}
-{% if container.healthcheck.interval is defined %}
-      interval: {{ container.healthcheck.interval }}
-{% endif %}
-{% if container.healthcheck.timeout is defined %}
-      timeout: {{ container.healthcheck.timeout }}
-{% endif %}
-{% if container.healthcheck.retries is defined %}
-      retries: {{ container.healthcheck.retries }}
-{% endif %}
-{% if container.healthcheck.start_period is defined %}
-      start_period: {{ container.healthcheck.start_period }}
-{% endif %}
-{% endif %}
-{% if container.deploy is defined %}
-    deploy:
-{% if container.deploy.resources is defined %}
-      resources:
-{% if container.deploy.resources.reservations is defined %}
-        reservations:
-{% if container.deploy.resources.reservations.devices is defined %}
-          devices:
-{% for device in container.deploy.resources.reservations.devices %}
-          - driver: {{ device.driver | default('nvidia') }}
-{% if device.device_ids is defined %}
-            device_ids:
-{% for id in device.device_ids %}
-              - '{{ id }}'
-{% endfor %}
-{% elif device.count is defined %}
-            count: {{ device.count }}
-{% else %}
-            count: all
-{% endif %}
-            capabilities: {{ device.capabilities | default(['gpu']) }}
-{% endfor %}
-{% endif %}
-{% endif %}
-{% endif %}
-{% endif %}
-{% if container.restart is defined %}
-    restart: {{ container.restart }}
-{% endif %}
-{% if container.stop_signal is defined %}
-    stop_signal: {{ container.stop_signal }}
-{% endif %}
-{% if container.stop_grace_period is defined %}
-    stop_grace_period: {{ container.stop_grace_period }}
-{% endif %}
-{% if container.networks is defined %}
-    networks:
-{% for network in container.networks %}
-      - {{ network }}
-{% endfor %}
-{% endif %}
+{{ ns.svc | to_nice_yaml(indent=2) | indent(4, false) }}
 {% endif %}
 {% endfor %}
 
@@ -273,15 +20,11 @@ services:
 networks:
 {% for network in compose_networks %}
   {{ network.name }}:
-{% if network.external is defined %}
-    external: {{ network.external }}
-{% endif %}
-{% if network.network_name is defined %}
-    name: {{ network.network_name }}
-{% endif %}
-{% if network.enable_ipv6 is defined %}
-    enable_ipv6: {{ network.enable_ipv6 }}
-{% endif %}
+{% set ns_net = namespace(net={}) %}
+{% for key in network if key not in ['name'] %}
+{% set ns_net.net = ns_net.net | combine({key: network[key]}) %}
+{% endfor %}
+{{ ns_net.net | to_nice_yaml(indent=2) | indent(4, false) }}
 {% endfor %}
 {% endif %}
 
@@ -291,4 +34,3 @@ volumes:
   {{ volume }}:
 {% endfor %}
 {% endif %}
-
