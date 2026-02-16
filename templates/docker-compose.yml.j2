@@ -41,6 +41,9 @@ services:
 {% if container.privileged is defined %}
     privileged: {{ container.privileged }}
 {% endif %}
+{% if container.cgroup is defined %}
+    cgroup: {{ container.cgroup }}
+{% endif %}
 {% if container.ipc is defined %}
     ipc: {{ container.ipc }}
 {% endif %}
@@ -250,6 +253,9 @@ services:
 {% endif %}
 {% if container.restart is defined %}
     restart: {{ container.restart }}
+{% endif %}
+{% if container.stop_signal is defined %}
+    stop_signal: {{ container.stop_signal }}
 {% endif %}
 {% if container.stop_grace_period is defined %}
     stop_grace_period: {{ container.stop_grace_period }}
