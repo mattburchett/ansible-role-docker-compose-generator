@@ -12,7 +12,7 @@ services:
 {% set ns.svc = ns.svc | combine({'environment': global_env_vars + (ns.svc.environment | default([]))}) %}
 {% endif %}
   {{ container.service_name }}:
-{{ ns.svc | to_nice_yaml(indent=2) | indent(4, false) }}
+{{ ns.svc | to_nice_yaml(indent=2) | indent(4, true) }}
 {% endif %}
 {% endfor %}
 
@@ -24,7 +24,7 @@ networks:
 {% for key in network if key not in ['name'] %}
 {% set ns_net.net = ns_net.net | combine({key: network[key]}) %}
 {% endfor %}
-{{ ns_net.net | to_nice_yaml(indent=2) | indent(4, false) }}
+{{ ns_net.net | to_nice_yaml(indent=2) | indent(4, true) }}
 {% endfor %}
 {% endif %}
 
