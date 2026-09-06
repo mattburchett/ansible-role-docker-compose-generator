@@ -16,7 +16,7 @@ services:
 {% endif %}
 {% endfor %}
 
-{% if compose_networks is defined %}
+{% if compose_networks is defined and compose_networks | length > 0 %}
 networks:
 {% for network in compose_networks %}
   {{ network.name }}:
@@ -31,7 +31,7 @@ networks:
 {% endfor %}
 {% endif %}
 
-{% if volumes is defined %}
+{% if volumes is defined and volumes | length > 0 %}
 volumes:
 {% for volume in volumes %}
   {{ volume }}:
